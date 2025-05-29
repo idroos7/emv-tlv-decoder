@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EMV TLV Decoder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">EMV TLV Decoder</h1>
+
+    <textarea id="tlvInput" class="w-full p-3 border rounded mb-4 font-mono" rows="5" placeholder="Enter EMV TLV hex string (e.g. 9F0206000000000100)..."></textarea>
+
+    <button onclick="decodeTLV()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Decode</button>
+
+    <div id="output" class="mt-6 whitespace-pre font-mono text-sm bg-gray-100 p-4 rounded border overflow-auto"></div>
+  </div>
+
+  <script>
+    function decodeTLV() {
+      const hex = document.getElementById('tlvInput').value.trim().replace(/\s+/g, '');
+      let output = '';
+      let i = 0;
+
+      function getTag() {
+        let tag = hex.substr(i, 2);
+        i += 2;
+        if ((parseInt(tag, 16) & 0x1F) === 0x1F) {
+          tag += hex.substr(i, 2);
+          i += 2;
+        }
+        return tag;
+      }
+
+      function getLength() {
+        let len = parseInt(hex.substr(i, 2), 16);
+        i += 2;
+        if (len & 0x80) {
+          const numBytes = len & 0x7F;
+          len = parseInt(hex.substr(i, numBytes * 2), 16);
+          i += numBytes * 2;
+        }
+        return len;
+      }
+
+      try {
+        while (i < hex.length) {
+          const tag = getTag();
+          const length = getLength();
+          const value = hex.substr(i, length * 2);
+          i += length * 2;
+
+          output += `Tag: ${tag}\nLength: ${length}\nValue: ${value}\n\n`;
+        }
+        document.getElementById('output').textContent = output || 'No valid TLV data found.';
+      } catch (e) {
+        document.getElementById('output').textContent = 'Error decoding TLV: ' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
