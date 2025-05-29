@@ -16,7 +16,10 @@
 
     <div id="output" class="mt-6 whitespace-pre font-mono text-sm bg-gray-100 p-4 rounded border overflow-auto"></div>
   </div>
- const tags = {
+ 
+  <script>
+
+    const tags = {
             "9F01": "Acquirer Identifier",
             "9F40": "Additional Terminal Capabilities",
             "81": "Amount, Authorised (Binary)",
@@ -27,7 +30,6 @@
             "9F26": "Application Cryptogram"
         };
 
-  <script>
     function decodeTLV() {
       const hex = document.getElementById('tlvInput').value.trim().replace(/\s+/g, '');
       let output = '';
